@@ -1,5 +1,6 @@
 package com.seoul.produce;
 
+import io.prometheus.client.CollectorRegistry;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.clients.producer.ProducerRecord;
@@ -10,6 +11,7 @@ import io.prometheus.client.Counter;
 import io.prometheus.client.exporter.HTTPServer;
 
 
+import java.net.InetSocketAddress;
 import java.util.Properties;
 
 public class ProduceAuditTopic {
@@ -27,7 +29,9 @@ public class ProduceAuditTopic {
     public static void main(String[] args) {
         // Start Prometheus HTTP server for metrics
         try {
-            new HTTPServer(1235);
+            new HTTPServer(new InetSocketAddress("0.0.0.0", 1235),
+                    CollectorRegistry.defaultRegistry,
+                    true);
             System.out.println("Prometheus metrics HTTP server started on port 1235");
         } catch (Exception e) {
             System.err.println("Failed to start Prometheus HTTP server: " + e.getMessage());
