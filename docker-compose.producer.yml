@@ -1,0 +1,16 @@
+
+services:
+  producer:
+    image: my/producer:latest
+    # 소스에서 바로 빌드하려면 위 image 대신 아래 사용:
+    # build: .
+    environment:
+      BOOTSTRAP: "15.164.187.115:9092,43.200.197.192:9092,13.209.235.184:9092"
+      TOPIC: "audit-topic"             # 너의 토픽명으로 변경 가능 (예: pii.profiles.raw)
+    networks:
+      - accessToSeoul-network
+    restart: "no"                       #s 원샷 전송이면 no, 주기적으로 보내면 always
+
+networks:
+  accessToSeoul-network:
+    external: true

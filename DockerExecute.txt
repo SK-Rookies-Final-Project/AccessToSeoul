@@ -1,0 +1,4 @@
+./gradlew clean shadowJar
+docker build -t my/producer:latest .
+docker compose -f docker-compose.producer.yml up -d
+
