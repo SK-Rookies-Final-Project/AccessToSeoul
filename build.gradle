@@ -41,7 +41,7 @@ dependencies {
 }
 
 application {
-    mainClass = 'com.example.producer.Producer'
+    mainClass = 'com.seoul.login.LoginToSeoul'
 }
 
 tasks.test {
