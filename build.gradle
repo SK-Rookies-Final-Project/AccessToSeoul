@@ -41,7 +41,7 @@ dependencies {
 }
 
 application {
-    mainClass = 'com.seoul.login.LoginToSeoul'
+    mainClass = 'com.seoul.produce.ProduceAuditTopic'
 }
 
 tasks.test {
