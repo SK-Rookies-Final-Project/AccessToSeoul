@@ -1,21 +1,22 @@
-package com.seoul.produce;
+package com.seoul.login;
 
 import io.prometheus.client.CollectorRegistry;
+import io.prometheus.client.Counter;
+import io.prometheus.client.exporter.HTTPServer;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.config.SaslConfigs;
 import org.apache.kafka.common.serialization.StringSerializer;
 
-import io.prometheus.client.Counter;
-import io.prometheus.client.exporter.HTTPServer;
-
-
 import java.net.InetSocketAddress;
 import java.util.Properties;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
-public class ProduceAuditTopic {
-
+// 15초마다 한번씩 시도 (wrong:wrong-secret)
+public class NotMove {
     static final Counter producedMessages = Counter.build()
             .name("kafka_produced_messages_total")
             .help("Number of messages successfully produced")
@@ -44,12 +45,14 @@ public class ProduceAuditTopic {
 
         // 세 가지 계정 정보
         String[][] creds = new String[][]{
-                {"dr", "dr-secret"},
-                {"dw", "dw-secret"},
+
                 {"wrong", "wrong-secret"}
         };
 
-        while (true) {
+        // ===== Scheduler: 15초마다 한번씩 시도 =====
+        ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
+
+        Runnable task = () -> {
             for (String[] cred : creds) {
                 final String user = cred[0];
                 final String pass = cred[1];
@@ -65,7 +68,7 @@ public class ProduceAuditTopic {
                 props.put(SaslConfigs.SASL_JAAS_CONFIG, jaas(user, pass));
                 props.put(ProducerConfig.ACKS_CONFIG, "all");
 
-                System.out.printf("\n[PRODUCER] Trying as %s\n", user);
+                System.out.printf("\n[PRODUCER] Trying as %s%n", user);
                 try (KafkaProducer<String, String> producer = new KafkaProducer<>(props)) {
                     String key = "key-" + System.currentTimeMillis();
                     String value = "Hello AuditTopic from " + user;
@@ -86,10 +89,24 @@ public class ProduceAuditTopic {
                 } catch (Exception e) {
                     System.err.printf("[PRODUCER] user=%s init ERROR: %s%n", user, e.getMessage());
                 }
-
-                try { Thread.sleep(10000); } catch (InterruptedException ignored) {}
             }
-        }
+        };
+
+        // initialDelay=0, period=15 seconds
+        scheduler.scheduleAtFixedRate(task, 0, 15, TimeUnit.SECONDS);
+
+        // Graceful shutdown on JVM exit
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            System.out.println("Shutting down scheduler...");
+            scheduler.shutdown();
+            try {
+                if (!scheduler.awaitTermination(5, TimeUnit.SECONDS)) {
+                    scheduler.shutdownNow();
+                }
+            } catch (InterruptedException ignored) {
+                scheduler.shutdownNow();
+            }
+        }));
     }
 
     private static String jaas(String user, String pass) {
