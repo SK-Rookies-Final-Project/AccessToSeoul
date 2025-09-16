@@ -44,9 +44,45 @@ application {
     mainClass = 'com.seoul.produce.ProduceAuditTopic'
 }
 
+tasks.register('runProduce', JavaExec) {
+    group = 'application'
+    description = 'Run ProduceAuditTopic'
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass = 'com.seoul.produce.ProduceAuditTopic'
+}
+
+tasks.register('runLogin', JavaExec) {
+    group = 'application'
+    description = 'Run LoginToSeoul'
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass = 'com.seoul.login.LoginToSeoul'
+}
+
+tasks.register('runConsume', JavaExec) {
+    group = 'application'
+    description = 'Run ConsumeAuditTopic'
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass = 'com.seoul.consume.ConsumeAuditTopic'
+}
+
+tasks.register('runNotMove', JavaExec) {
+    group = 'application'
+    description = 'Run NotMove'
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass = 'com.seoul.login.NotMove'
+}
+
+tasks.register('runTwoTime', JavaExec) {
+    group = 'application'
+    description = 'Run TwoTime'
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass = 'com.seoul.login.TwoTime'
+}
+
 tasks.test {
     useJUnitPlatform()
 }
+
 
 shadowJar {
     archiveBaseName.set('producer-app')
