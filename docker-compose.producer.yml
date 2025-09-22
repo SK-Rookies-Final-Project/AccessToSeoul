@@ -1,16 +1,42 @@
+networks:
+  kafka-network:
+    name: inventory_kafka-network
+    external: true
+    driver: bridge
 
 services:
-  producer:
+  producer-certified2:
     image: my/producer:latest
-    # 소스에서 바로 빌드하려면 위 image 대신 아래 사용:
-    # build: .
     environment:
-      BOOTSTRAP: "15.164.187.115:9092,43.200.197.192:9092,13.209.235.184:9092"
-      TOPIC: "audit-topic"             # 너의 토픽명으로 변경 가능 (예: pii.profiles.raw)
+      BOOTSTRAP: "broker1:19092,broker2:19093,broker3:19094"
+      TOPIC: "certified-2time"
     networks:
-      - accessToSeoul-network
-    restart: "no"                       #s 원샷 전송이면 no, 주기적으로 보내면 always
+      - kafka-network
+    restart: "no"
 
-networks:
-  accessToSeoul-network:
-    external: true
+  producer-notmove:
+    image: my/producer:latest
+    environment:
+      BOOTSTRAP: "broker1:19092,broker2:19093,broker3:19094"
+      TOPIC: "certified-notMove"
+    networks:
+      - kafka-network
+    restart: "no"
+
+  producer-clusterfalse:
+    image: my/producer:latest
+    environment:
+      BOOTSTRAP: "broker1:19092,broker2:19093,broker3:19094"
+      TOPIC: "cluster-level-false"
+    networks:
+      - kafka-network
+    restart: "no"
+
+  producer-systemfalse:
+    image: my/producer:latest
+    environment:
+      BOOTSTRAP: "broker1:19092,broker2:19093,broker3:19094"
+      TOPIC: "system-level-false"
+    networks:
+      - kafka-network
+    restart: "no"

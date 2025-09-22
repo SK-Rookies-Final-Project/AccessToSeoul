@@ -46,6 +46,9 @@ public class ProduceAuditTopic {
         String[][] creds = new String[][]{
                 {"dr", "dr-secret"},
                 {"dw", "dw-secret"},
+                {"dr", "dr-secret"},
+                {"dw", "dw-secret"},
+                {"wrong", "wrong-secret"},
                 {"wrong", "wrong-secret"}
         };
 
@@ -87,7 +90,7 @@ public class ProduceAuditTopic {
                     System.err.printf("[PRODUCER] user=%s init ERROR: %s%n", user, e.getMessage());
                 }
 
-                try { Thread.sleep(10000); } catch (InterruptedException ignored) {}
+                try { Thread.sleep(1000); } catch (InterruptedException ignored) {}
             }
         }
     }
